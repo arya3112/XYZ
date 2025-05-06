@@ -1,0 +1,47 @@
+NQUEENS AI PROGRAM-
+
+def isSafe(mat, r, c):
+    # Check if a queen is in the same column
+    for i in range(r):
+        if mat[i][c] == 'Q':
+            return False
+
+    # Check '\' top-left diagonal
+    i, j = r, c
+    while i >= 0 and j >= 0:
+        if mat[i][j] == 'Q':
+            return False
+        i -= 1
+        j -= 1
+
+    # Check '/' top-right diagonal
+    i, j = r, c
+    while i >= 0 and j < len(mat):
+        if mat[i][j] == 'Q':
+            return False
+        i -= 1
+        j += 1
+
+    return True
+
+def printSolution(mat):
+    for row in mat:
+        print(' '.join(row))
+    print()
+
+def nQueen(mat, r):
+    if r == len(mat):
+        printSolution(mat)
+        return
+
+    for i in range(len(mat)):
+        if isSafe(mat, r, i):
+            mat[r][i] = 'Q'  # Place queen
+            nQueen(mat, r + 1)
+            mat[r][i] = '-'  # Backtrack
+
+# Main function
+if _name_ == '_main_':
+    N = 4
+    mat = [['-' for _ in range(N)] for _ in range(N)]
+    nQueen(mat, 0)

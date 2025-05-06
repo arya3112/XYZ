@@ -1,0 +1,76 @@
+import copy
+
+# Represent infinity (used for unreachable or visited cities)
+inf = float('inf')
+
+class TSP_AI:
+    # Constructor: Initialize city matrix and source city
+    def __init__(self, city_matrix=None, source=0):
+        # If no matrix is provided, initialize a 4x4 matrix with 0s
+        self.city_matrix = [[0] * 4 for _ in range(4)] if city_matrix is None else city_matrix
+        self.n: int = len(self.city_matrix)  # Total number of cities
+        self.source: int = source  # Starting city
+
+    # Optional method to accept input from user
+    def Input(self):
+        self.n = int(input('Enter number of cities: '))
+        self.city_matrix = []
+        for i in range(self.n):
+            self.city_matrix.append([
+                inf if i == j else int(input(f'Cost to travel from city {i+1} to {j+1}: '))
+                for j in range(self.n)
+            ])
+        self.source = int(input('Enter source city (0-indexed): ')) % self.n
+
+    # Solve the TSP problem starting from each city and return minimum cost
+    def solve(self):
+        minCost = inf
+        for i in range(self.n):
+            print("Path", end='')
+            # Make a deep copy so that original matrix is not altered
+            cost = self._solve(copy.deepcopy(self.city_matrix), i, i)
+            print(f" -> {i+1} : Cost = {cost}")
+            if cost and cost < minCost:
+                minCost = cost
+        return minCost
+
+    # Recursive helper to compute nearest neighbor path cost
+    def _solve(self, city_matrix, currCity=0, source=0):
+        if self.n < 2:
+            return 0
+
+        print(f" -> {currCity + 1}", end='')
+
+        # Mark current city as visited by setting its column to inf
+        for i in range(self.n):
+            city_matrix[i][currCity] = inf
+
+        # Find the nearest unvisited city
+        currMin, currMinPos = inf, 0
+        for j in range(self.n):
+            if city_matrix[currCity][j] < currMin:
+                currMin = city_matrix[currCity][j]
+                currMinPos = j
+
+        # If all cities have been visited, return to source
+        if currMin == inf:
+            return self.city_matrix[currCity][source]
+
+        # Mark this path as visited in both directions
+        city_matrix[currCity][currMinPos] = city_matrix[currMinPos][currCity] = inf
+
+        # Recursively continue the path
+        return currMin + self._solve(city_matrix, currMinPos, source)
+
+# Main block to run the code
+if __name__ == '__main__':
+    # Sample city cost matrix
+    city_matrix = [
+        [inf, 20, 15, 10],
+        [20, inf, 45, 25],
+        [15, 45, inf, 40],
+        [10, 25, 40, inf]
+    ]
+    source_city = 0  # Starting from city 0
+    tsp = TSP_AI(city_matrix, source_city)
+    print(f"\nOptimal Cost : {tsp.solve()}")
